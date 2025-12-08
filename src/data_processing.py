@@ -65,6 +65,12 @@ def normalize_features(df):
     print("Hoàn thành chuẩn hóa dữ liệu")
     return df
 
+def parse_date_column(df, date_col='Date', format='%Y-%m-%d'):
+    df[date_col] = pd.to_datetime(df[date_col], format=format, errors='coerce')
+    
+    print(f"Đã xử lý cột {date_col}")
+    return df
+
 def label_encoding(df):
     le_cols = ['Location', 'WindGustDir', 'WindDir9am', 'WindDir3pm']
     le = LabelEncoder()
