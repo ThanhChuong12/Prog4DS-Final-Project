@@ -37,7 +37,8 @@ def handle_missing(df):
     return df
 
 def handle_outliers_iqr(df):
-    num_cols = df.select_dtypes(include=np.number).columns
+     # Chỉ lấy các cột số (trừ target)
+    num_cols = df.select_dtypes(include=np.number).columns.drop(['RainToday', 'RainTomorrow'], errors='ignore')
     for col in num_cols:
         Q1 = df[col].quantile(0.25)
         Q3 = df[col].quantile(0.75)
