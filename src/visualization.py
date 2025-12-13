@@ -140,8 +140,12 @@ def analyze_numerical_feature(df: pd.DataFrame, column: str, figsize=(16, 6)) ->
         pd.DataFrame(stats_dict, index=["Value"])
         .T.round(4)
     )
-    print("\nDESCRIPTIVE STATISTICS")
+    print("\DESCRIPTIVE STATISTICS")
     display(stats_df)
+
+    skew = stats_dict["Skewness"]
+    mean = stats_dict["Mean"]
+    median = stats_dict["Median"]
 
     # VISUALIZATION PANEL
     fig = plt.figure(figsize=figsize)
