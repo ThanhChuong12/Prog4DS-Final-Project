@@ -1,9 +1,11 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
-from scipy import stats
 import matplotlib.gridspec as gridspec
 import pandas as pd
 import missingno as msno
+import numpy as np
+from scipy import stats
+from scipy.stats import norm
 
 def plot_missing_patterns(df, sample_size=1000, random_state=42):
     """
@@ -100,3 +102,129 @@ def plot_missing_analysis(df_weather):
         "mis_mean": mis.mean(),
         "p_value": p_val
     }
+
+
+def analyze_numerical_feature(df: pd.DataFrame, column: str, figsize=(16, 6)) -> None:
+    """
+    Perform a comprehensive exploratory analysis for a single numerical feature.
+
+    The analysis includes:
+    - Descriptive statistics
+    - Distribution shape diagnostics
+    - Multiple visualizations (Histogram, Boxplot, Q-Q Plot, Density comparison)
+    - Outlier detection using the IQR method
+    """
+
+    if column not in df.columns:
+        raise ValueError(f"Column '{column}' does not exist in the DataFrame.")
+    series = df[column]
+
+    print(f"\nDETAILED NUMERICAL ANALYSIS: {column}")
+
+    # DESCRIPTIVE STATISTICS
+    stats_dict = {
+        "Count": series.count(),
+        "Mean": series.mean(),
+        "Median": series.median(),
+        "Std": series.std(),
+        "Min": series.min(),
+        "Q1": series.quantile(0.25),
+        "Q3": series.quantile(0.75),
+        "Max": series.max(),
+        "IQR": series.quantile(0.75) - series.quantile(0.25),
+        "Skewness": series.skew(),
+        "Kurtosis": series.kurtosis(),
+        "Missing_Rate_%": series.isnull().mean() * 100,
+    }
+    stats_df = (
+        pd.DataFrame(stats_dict, index=["Value"])
+        .T.round(4)
+    )
+    print("\nDESCRIPTIVE STATISTICS")
+    display(stats_df)
+
+    # VISUALIZATION PANEL
+    fig = plt.figure(figsize=figsize)
+    gs = fig.add_gridspec(2, 4)
+    ax_hist = fig.add_subplot(gs[0, :2])
+    ax_box = fig.add_subplot(gs[0, 2:])
+    ax_qq = fig.add_subplot(gs[1, :2])
+    ax_density = fig.add_subplot(gs[1, 2:])
+
+    # Histogram + KDE
+    sns.histplot(series.dropna(), bins=50, kde=True, ax=ax_hist)
+    ax_hist.axvline(mean, color="red", linestyle="--", linewidth=2, label=f"Mean = {mean:.2f}")
+    ax_hist.axvline(median, color="green", linestyle="-", linewidth=2, label=f"Median = {median:.2f}")
+    ax_hist.set_title(f"Histogram & KDE – {column}", fontweight="bold")
+    ax_hist.set_xlabel(column)
+    ax_hist.set_ylabel("Frequency")
+    ax_hist.legend()
+    ax_hist.grid(alpha=0.3)
+
+    # Boxplot
+    sns.boxplot(x=series.dropna(), ax=ax_box)
+    ax_box.set_title(f"Boxplot – {column}", fontweight="bold")
+    ax_box.set_xlabel(column)
+
+    # Q-Q Plot
+    stats.probplot(series.dropna(), dist="norm", plot=ax_qq)
+    ax_qq.set_title("Q-Q Plot (Normality Check)", fontweight="bold")
+    ax_qq.grid(alpha=0.3)
+
+    # Density comparison with fitted normal distribution
+    if series.dropna().shape[0] > 0:
+        mu, sigma = norm.fit(series.dropna())
+        x = np.linspace(series.min(), series.max(), 200)
+        ax_density.plot(x, norm.pdf(x, mu, sigma), linewidth=2, label="Fitted Normal")
+        sns.kdeplot(series.dropna(), ax=ax_density, label="Empirical KDE")
+        ax_density.set_title("Empirical vs Normal Distribution", fontweight="bold")
+        ax_density.legend()
+        ax_density.grid(alpha=0.3)
+
+    plt.tight_layout()
+    plt.show()
+
+    # OUTLIER ANALYSIS (IQR METHOD)
+    print("OUTLIER ANALYSIS (IQR METHOD)")
+    Q1, Q3, IQR = stats_dict["Q1"], stats_dict["Q3"], stats_dict["IQR"]
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    outliers = series[(series < lower_bound) | (series > upper_bound)]
+    outlier_rate = (outliers.count() / series.count() * 100) if series.count() > 0 else 0
+    outlier_summary = (
+        pd.DataFrame(
+            {
+                "Lower_Bound": lower_bound,
+                "Q1": Q1,
+                "Median": median,
+                "Q3": Q3,
+                "Upper_Bound": upper_bound,
+                "Outlier_Count": outliers.count(),
+                "Outlier_Rate_%": outlier_rate,
+                "Observed_Min": stats_dict["Min"],
+                "Observed_Max": stats_dict["Max"],
+            },
+            index=["Value"],
+        )
+        .T.round(4)
+    )
+    display(outlier_summary)
+
+    if outliers.count() > 0:
+        print(
+            f"Outliers detected: {outliers.count()} observations "
+            f"({outlier_rate:.2f}% of non-missing values)."
+        )
+        print(f" • Smallest outlier value: {outliers.min():.4f}")
+        print(f" • Largest outlier value: {outliers.max():.4f}")
+    else:   
+        print("No significant outliers detected using the IQR criterion.")
+
+def analyze_feature_group(df, group_name, features):
+    print(f"FEATURE GROUP ANALYSIS: {group_name.upper()}")
+    for feature in features:
+        if feature in df.columns:
+            analyze_numerical_feature(df, feature)
+        else:
+            print(f"Feature '{feature}' not found.")
+
