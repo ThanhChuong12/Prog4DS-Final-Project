@@ -104,15 +104,10 @@ def plot_missing_analysis(df_weather):
     }
 
 
-def analyze_numerical_feature(df: pd.DataFrame, column: str, figsize=(16, 6)) -> None:
+def analyze_numerical_feature(df: pd.DataFrame, column: str, figsize=(16, 6)) -> dict:
     """
     Perform a comprehensive exploratory analysis for a single numerical feature.
-
-    The analysis includes:
-    - Descriptive statistics
-    - Distribution shape diagnostics
-    - Multiple visualizations (Histogram, Boxplot, Q-Q Plot, Density comparison)
-    - Outlier detection using the IQR method
+    Returns a dictionary containing statistical metrics.
     """
 
     if column not in df.columns:
@@ -123,6 +118,7 @@ def analyze_numerical_feature(df: pd.DataFrame, column: str, figsize=(16, 6)) ->
 
     # DESCRIPTIVE STATISTICS
     stats_dict = {
+        "Feature": column,
         "Count": series.count(),
         "Mean": series.mean(),
         "Median": series.median(),
@@ -136,18 +132,14 @@ def analyze_numerical_feature(df: pd.DataFrame, column: str, figsize=(16, 6)) ->
         "Kurtosis": series.kurtosis(),
         "Missing_Rate_%": series.isnull().mean() * 100,
     }
-    stats_df = (
-        pd.DataFrame(stats_dict, index=["Value"])
-        .T.round(4)
-    )
-    print("\DESCRIPTIVE STATISTICS")
+    stats_df = pd.DataFrame(stats_dict, index=["Value"]).T.round(4)
+    print("DESCRIPTIVE STATISTICS")
     display(stats_df)
 
-    skew = stats_dict["Skewness"]
+    # VISUALIZATION PANEL
     mean = stats_dict["Mean"]
     median = stats_dict["Median"]
 
-    # VISUALIZATION PANEL
     fig = plt.figure(figsize=figsize)
     gs = fig.add_gridspec(2, 4)
     ax_hist = fig.add_subplot(gs[0, :2])
@@ -195,6 +187,7 @@ def analyze_numerical_feature(df: pd.DataFrame, column: str, figsize=(16, 6)) ->
     upper_bound = Q3 + 1.5 * IQR
     outliers = series[(series < lower_bound) | (series > upper_bound)]
     outlier_rate = (outliers.count() / series.count() * 100) if series.count() > 0 else 0
+    stats_dict["Outliers_%"] = outlier_rate
     outlier_summary = (
         pd.DataFrame(
             {
@@ -223,12 +216,117 @@ def analyze_numerical_feature(df: pd.DataFrame, column: str, figsize=(16, 6)) ->
         print(f" • Largest outlier value: {outliers.max():.4f}")
     else:   
         print("No significant outliers detected using the IQR criterion.")
+    
+    return stats_dict
 
 def analyze_feature_group(df, group_name, features):
     print(f"FEATURE GROUP ANALYSIS: {group_name.upper()}")
+    group_results = []
     for feature in features:
         if feature in df.columns:
-            analyze_numerical_feature(df, feature)
+            stat_result = analyze_numerical_feature(df, feature)
+            stat_result['Group'] = group_name
+            group_results.append(stat_result)
         else:
             print(f"Feature '{feature}' not found.")
+    return group_results
 
+def analyze_categorical_features(
+    df: pd.DataFrame,
+    categorical_columns: list[str],
+    high_cardinality_threshold: int = 20,
+    top_n: int = 10,
+    bottom_n: int = 5,
+    figsize: tuple = (10, 4)
+) -> None:
+    """
+    Visualize distributions of categorical features.
+    """
+
+    # Compass order for wind direction variables
+    compass_order = [
+        'N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE',
+        'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'
+    ]
+
+    for col in categorical_columns:
+        if col not in df.columns:
+            print(f"Skipped: '{col}' not found in DataFrame.")
+            continue
+        print(f"\nAnalyzing categorical feature: {col}")
+        value_counts = df[col].value_counts(dropna=True)
+        n_categories = len(value_counts)
+        plt.figure(figsize=figsize)
+
+        # Case 1: High-cardinality categorical feature
+        if n_categories > high_cardinality_threshold:
+            subset = pd.concat([
+                value_counts.head(top_n),
+                value_counts.tail(bottom_n)
+            ])
+
+            sns.barplot(
+                x=subset.index,
+                y=subset.values,
+                hue=subset.index,
+                palette='viridis',
+                legend=False
+            )
+
+            plt.title(
+                f"{col} Distribution (Top {top_n} & Bottom {bottom_n} Categories)",
+                fontsize=12,
+                fontweight='bold'
+            )
+            plt.xticks(rotation=45, ha='right')
+
+        # Case 2: Compass-based directional features
+        elif "Dir" in col:
+            ordered_dirs = [d for d in compass_order if d in value_counts.index]
+
+            sns.countplot(
+                data=df,
+                x=col,
+                order=ordered_dirs,
+                hue=col,
+                palette='coolwarm',
+                legend=False
+            )
+
+            plt.title(
+                f"{col} Distribution (Compass Order)",
+                fontsize=12,
+                fontweight='bold'
+            )
+
+        # Case 3: Low-cardinality categorical feature
+        else:
+            sns.barplot(
+                x=value_counts.index,
+                y=value_counts.values,
+                hue=value_counts.index,
+                palette='pastel',
+                legend=False
+            )
+            plt.title(
+                f"{col} Distribution",
+                fontsize=12,
+                fontweight='bold'
+            )
+
+            # Annotate percentage labels
+            total = len(df)
+            for i, count in enumerate(value_counts.values):
+                pct = count / total * 100
+                plt.text(
+                    i,
+                    count,
+                    f"{pct:.1f}%",
+                    ha='center',
+                    va='bottom',
+                    fontsize=9
+                )
+        plt.xlabel(col)
+        plt.ylabel("Count")
+        plt.tight_layout()
+        plt.show()
