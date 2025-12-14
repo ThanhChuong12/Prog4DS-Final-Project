@@ -132,7 +132,7 @@ def analyze_numerical_feature(df: pd.DataFrame, column: str, figsize=(16, 6)) ->
         "Kurtosis": series.kurtosis(),
         "Missing_Rate_%": series.isnull().mean() * 100,
     }
-    stats_df = pd.DataFrame(stats_dict, index=["Value"]).T.round(4)
+    stats_df = pd.DataFrame(stats_dict, index=["Value"]).round(4)
     print("DESCRIPTIVE STATISTICS")
     display(stats_df)
 
@@ -202,8 +202,7 @@ def analyze_numerical_feature(df: pd.DataFrame, column: str, figsize=(16, 6)) ->
                 "Observed_Max": stats_dict["Max"],
             },
             index=["Value"],
-        )
-        .T.round(4)
+        ).round(4)
     )
     display(outlier_summary)
 
@@ -313,8 +312,6 @@ def analyze_categorical_features(
                 fontsize=12,
                 fontweight='bold'
             )
-
-            # Annotate percentage labels
             total = len(df)
             for i, count in enumerate(value_counts.values):
                 pct = count / total * 100
