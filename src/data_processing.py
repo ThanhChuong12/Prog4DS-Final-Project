@@ -68,12 +68,19 @@ def normalize_features(df):
 
 def parse_date_column(df, date_col='Date', format='%Y-%m-%d'):
     df[date_col] = pd.to_datetime(df[date_col], format=format, errors='coerce')
-    
+    df['Month'] = df[date_col].dt.month
+    df['Year'] = df[date_col].dt.year
+    def get_season(month):
+        if month in [12, 1, 2]: return 'Summer'
+        elif month in [3, 4, 5]: return 'Autumn'
+        elif month in [6, 7, 8]: return 'Winter'
+        else: return 'Spring'
+    df['Season'] = df['Month'].apply(get_season)
     print(f"Đã xử lý cột {date_col}")
     return df
 
 def label_encoding(df):
-    le_cols = ['Location', 'WindGustDir', 'WindDir9am', 'WindDir3pm']
+    le_cols = ['WindGustDir', 'WindDir9am', 'WindDir3pm']#'Location'
     le = LabelEncoder()
     for col in le_cols:
         df[col] = le.fit_transform(df[col].astype(str))
