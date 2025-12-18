@@ -3,6 +3,8 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler, LabelEncoder
 from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split
+from sklearn.experimental import enable_iterative_imputer
+from sklearn.impute import IterativeImputer
 
 def load_data(path="weatherAUS.csv"):
     df = pd.read_csv(path, na_values='NA')
@@ -13,22 +15,38 @@ def handle_missing(df):
 
     df = df.copy()
 
+    # 1. XỬ LÝ BIẾN MỤC TIÊU (Bắt buộc xóa NA)
     if 'RainTomorrow' in df.columns:
-        before = len(df)
-        df = df.dropna(subset=['RainTomorrow'])  
-        after = len(df)
+        df = df.dropna(subset=['RainTomorrow'])
 
+    # 2. MÃ HÓA BIẾN PHÂN LOẠI NHỊ PHÂN (RainToday/Tomorrow)
     for col in ['RainToday', 'RainTomorrow']:
         if col in df.columns:
             df[col] = df[col].map({'Yes': 1, 'No': 0})
-
+    
     if 'RainToday' in df.columns:
-        df['RainToday'] = df['RainToday'].fillna(2)
+        df['RainToday'] = df['RainToday'].fillna(2) # 2 là trạng thái "Không xác định"
 
-    for col in df.select_dtypes(include=np.number).columns:
-        if col not in ['RainToday', 'RainTomorrow']:
-            df[col] = df[col].fillna(df[col].mean())
+    # 3. TẠO MISSING INDICATOR FLAGS (Cho nhóm biến tỷ lệ thiếu cao)
+    # Giúp mô hình nhận biết trạng thái "không quan trắc được"
+    high_miss_cols = ['Evaporation', 'Sunshine', 'Cloud9am', 'Cloud3pm']
+    for col in high_miss_cols:
+        if col in df.columns:
+            df[f'{col}_Missing'] = df[col].isnull().astype(int)
 
+    # 4. XỬ LÝ BIẾN SỐ BẰNG ITERATIVE IMPUTER (MICE)
+    # Lấy danh sách các cột số (trừ target và các flag vừa tạo)
+    num_cols = df.select_dtypes(include=np.number).columns.drop(['RainToday', 'RainTomorrow'], errors='ignore')
+    num_cols = [c for c in num_cols if not c.endswith('_Missing')]
+
+    # Khởi tạo MICE Imputer
+    # ItrativeImputer sẽ dự đoán giá trị thiếu dựa trên các biến tương quan (nhiệt độ, áp suất...)
+    mice_imputer = IterativeImputer(max_iter=20, random_state=42, tol=1e-2)
+    
+    # Thực hiện điền giá trị
+    df[num_cols] = mice_imputer.fit_transform(df[num_cols])
+
+    # 5. XỬ LÝ BIẾN PHÂN LOẠI CÒN LẠI (Mode Imputation)
     for col in df.select_dtypes(include='object').columns:
         if col != 'Date':
             df[col] = df[col].fillna(df[col].mode()[0])
@@ -36,20 +54,12 @@ def handle_missing(df):
     print("Xử lý missing hoàn tất")
     return df
 
-def handle_outliers_iqr(df):
-     # Chỉ lấy các cột số (trừ target)
-    num_cols = df.select_dtypes(include=np.number).columns.drop(['RainToday', 'RainTomorrow'], errors='ignore')
-    for col in num_cols:
-        Q1 = df[col].quantile(0.25)
-        Q3 = df[col].quantile(0.75)
-        IQR = Q3 - Q1
-        lower = Q1 - 1.5 * IQR
-        upper = Q3 + 1.5 * IQR
-        df[col] = np.clip(df[col], lower, upper)
-    print("Hoàn thành xử lý outliers bằng IQR")
-    return df
+
 
 def normalize_features(df):
+
+    #Loại bỏ số âm phát sinh do Imputer trước khi Log
+    df['Rainfall'] = df['Rainfall'].clip(lower=0)
     # Rainfall: log + robust
     df['Rainfall'] = np.log1p(df['Rainfall'])
     df['Rainfall'] = RobustScaler().fit_transform(df[['Rainfall']])
