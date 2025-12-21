@@ -327,3 +327,93 @@ def analyze_categorical_features(
         plt.ylabel("Count")
         plt.tight_layout()
         plt.show()
+
+def correlation_matrix_heatmap(df_weather):
+    numerical_df = df_weather.select_dtypes(include=[np.number])
+
+    corr_matrix = numerical_df.corr()
+
+    plt.figure(figsize=(16, 10))
+    mask = np.triu(np.ones_like(corr_matrix, dtype=bool)) 
+    sns.heatmap(corr_matrix, mask=mask, annot=True, fmt=".2f", cmap='RdBu_r', center=0, linewidths=0.5)
+    plt.title("Correlation Heatmap of Meteorological Features", fontsize=16)
+    plt.show()
+
+def numerical_categorical_cross_tabulation(df_weather):
+    plt.figure(figsize=(18, 6))
+
+    # Humidity3pm Analysis
+    plt.subplot(1, 3, 1)
+    sns.violinplot(
+        x='RainTomorrow', 
+        y='Humidity3pm', 
+        data=df_weather, 
+        palette="Blues", 
+        inner="quartile",
+        hue='RainTomorrow',
+        legend=False
+    )
+    plt.title('Humidity3pm Distribution vs RainTomorrow', fontsize=12)
+
+    # Sunshine Analysis
+    plt.subplot(1, 3, 2)
+    sns.boxplot(
+        x='RainTomorrow', 
+        y='Sunshine', 
+        data=df_weather, 
+        palette="YlOrBr",
+        hue='RainTomorrow',
+        legend=False
+    )
+    plt.title('Sunshine Hours vs RainTomorrow', fontsize=12)
+
+    # Pressure3pm Analysis
+    plt.subplot(1, 3, 3)
+    sns.kdeplot(
+        data=df_weather, 
+        x="Pressure3pm", 
+        hue="RainTomorrow", 
+        fill=True, 
+        common_norm=False
+    )
+    plt.title('Pressure3pm Density vs RainTomorrow', fontsize=12)
+
+    plt.tight_layout()
+    plt.show()
+
+def raintoday_and_raintomorrow_conditional_probability_and_stacked_bar_chart(df_weather):
+    rain_crosstab = pd.crosstab(df_weather['RainToday'], df_weather['RainTomorrow'])
+
+    rain_prop = pd.crosstab(df_weather['RainToday'], df_weather['RainTomorrow'], normalize='index')
+
+    print("Conditional probability table:")
+    display(rain_prop)
+
+    rain_prop.plot(kind='bar', stacked=True, figsize=(10, 6), color=['#aec6cf', '#1f77b4'])
+    plt.title('RainTomorrow Proportion based on RainToday', fontsize=14)
+    plt.xlabel('Raining Today (RainToday)')
+    plt.ylabel('Proportion')
+    plt.legend(title='RainTomorrow', loc='upper right')
+    plt.xticks(rotation=0)
+    plt.show()
+
+def wind_gust_direction_analysis(df_weather):
+    wind_rain_dist = pd.crosstab(df_weather['WindGustDir'], df_weather['RainTomorrow'], normalize='index')
+    wind_rain_dist = wind_rain_dist.sort_values(by='Yes', ascending=False) 
+
+    plt.figure(figsize=(14, 6))
+    sns.barplot(
+        x=wind_rain_dist.index, 
+        y=wind_rain_dist['Yes'], 
+        palette='viridis',
+        hue=wind_rain_dist.index, 
+        legend=False
+    )
+
+    avg_rain_prob = df_weather['RainTomorrow'].value_counts(normalize=True)['Yes']
+    plt.axhline(avg_rain_prob, color='red', linestyle='--', label='Average Rain Probability')
+
+    plt.title('Rain Tomorrow Probability by Wind Gust Direction (WindGustDir)', fontsize=14)
+    plt.ylabel('Proportion of RainTomorrow = Yes')
+    plt.legend()
+    plt.show()
