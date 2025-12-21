@@ -54,7 +54,20 @@ def handle_missing(df):
     print("Xử lý missing hoàn tất")
     return df
 
+def feature_engineering(df):
+    # Xây dựng Biến chênh lệch (Delta features) vì sự thay đổi quan trọng hơn giá trị tĩnh
+    # Sự thay đổi áp suất (quan trọng cho dự báo bão/mưa)
+    if 'Pressure3pm' in df.columns and 'Pressure9am' in df.columns:
+        df['PressureChange'] = df['Pressure3pm'] - df['Pressure9am']
 
+    # Biên độ nhiệt trong ngày
+    df['TempRange'] = df['MaxTemp'] - df['MinTemp']
+
+    # Sự thay đổi độ ẩm
+    if 'Humidity3pm' in df.columns and 'Humidity9am' in df.columns:
+        df['HumidityChange'] = df['Humidity3pm'] - df['Humidity9am']
+    
+    return df
 
 def normalize_features(df):
 
@@ -65,12 +78,12 @@ def normalize_features(df):
     df['Rainfall'] = RobustScaler().fit_transform(df[['Rainfall']])
 
     # Temp & Humidity: StandardScaler
-    temp_hum_cols = ['MinTemp', 'MaxTemp', 'Temp9am', 'Temp3pm', 'Humidity9am', 'Humidity3pm']
+    temp_hum_cols = ['MinTemp', 'MaxTemp', 'Temp9am', 'Temp3pm', 'Humidity9am', 'Humidity3pm', 'TempRange', 'HumidityChange']
     df[temp_hum_cols] = StandardScaler().fit_transform(df[temp_hum_cols])
 
     # Các cột còn lại: MinMaxScaler
     minmax_cols = ['Evaporation', 'Sunshine', 'WindGustSpeed', 'WindSpeed9am', 
-                   'WindSpeed3pm', 'Pressure9am', 'Pressure3pm', 'Cloud9am', 'Cloud3pm']
+                   'WindSpeed3pm', 'Pressure9am', 'Pressure3pm', 'Cloud9am', 'Cloud3pm', 'PressureChange']
     df[minmax_cols] = MinMaxScaler().fit_transform(df[minmax_cols])
 
     print("Hoàn thành chuẩn hóa dữ liệu")
@@ -89,12 +102,37 @@ def parse_date_column(df, date_col='Date', format='%Y-%m-%d'):
     print(f"Đã xử lý cột {date_col}")
     return df
 
+def target_encoding(df):
+    df = df.copy()
+    
+    # Target Encoding cho Location
+    if 'Location' in df.columns and 'RainTomorrow' in df.columns:
+        location_risk = df.groupby('Location')['RainTomorrow'].mean()
+        df['Location_Risk'] = df['Location'].map(location_risk)
+        # Drop cột Location gốc vì đã có biến số thay thế
+        df = df.drop(columns=['Location'])
+
+    return df 
+
 def label_encoding(df):
-    le_cols = ['WindGustDir', 'WindDir9am', 'WindDir3pm']#'Location'
+    le_cols = ['Season', 'WindGustDir', 'WindDir9am', 'WindDir3pm']
     le = LabelEncoder()
     for col in le_cols:
         df[col] = le.fit_transform(df[col].astype(str))
     print("Hoàn thành Label Encoding")
+    return df
+
+def select_features(df):
+    # Loại bỏ các biến bị đa cộng tuyến mạnh (High Multicollinearity) đã phát hiện ở bước EDA
+    # vì các biến này đã có biến khác đại diện tốt hơn
+    cols_to_drop = [
+        'Temp9am', 'Temp3pm',   # Đã có MaxTemp và TempRange
+        'Pressure9am',          # Đã có Pressure3pm và PressureChange
+    ]
+    
+    existing_cols_to_drop = [c for c in cols_to_drop if c in df.columns]
+    df = df.drop(columns=existing_cols_to_drop)
+    print(f"Đã loại bỏ các biến: {existing_cols_to_drop}")
     return df
 
 def pca_reduction(df, variance=0.95):
