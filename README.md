@@ -4,15 +4,19 @@ Final Project for CSC17104 (PROGRAMING FOR DATA SCIENCE)
 Dự án thực hiện phân tích chuyên sâu trên bộ dữ liệu thời tiết của Úc nhằm giải mã các quy luật khí tượng phức tạp. Thay vì chỉ dừng lại ở các thống kê mô tả, dự án tập trung vào việc tìm kiếm các "ngòi nổ" vật lý (như sự sụt giảm áp suất, biên độ nhiệt hẹp) và so sánh hiệu quả của các kỹ thuật xử lý dữ liệu tiên tiến để tối ưu hóa khả năng dự báo mưa.
 
 **Team Members:**
-- [Lê Hà Thanh Chương] - MSSV: 23120195 ()
-- [Võ Trần Duy Hoàng] - MSSV: 23120266 ()
-- [Trần Đình Thi] - MSSV: 23120359 ()
+- [Lê Hà Thanh Chương] - MSSV: 23120195
+- [Võ Trần Duy Hoàng] - MSSV: 23120266
+- [Trần Đình Thi] - MSSV: 23120359
 
 
 ## 2. Dataset Source & Description
-- **Source:** [Rain in Australia (Kaggle)](https://www.kaggle.com/jsphyg/weather-dataset-rattle-package)
-- **Description:** Dữ liệu quan trắc hàng ngày trong ~10 năm tại nhiều địa điểm ở Úc.
-- **Processed Data:** Dữ liệu đã được làm sạch, xử lý giá trị khuyết thiếu bằng kỹ thuật MICE và giảm chiều dữ liệu bằng PCA để phục vụ phân tích.
+* **Primary Source (Platform):** [Rain in Australia (Kaggle)](https://www.kaggle.com/datasets/jsphyg/weather-dataset-rattle-package)
+* **Original Custodian:** [Australian Bureau of Meteorology (BOM)](http://www.bom.gov.au/climate/data)
+* **Temporal Coverage:** 10 năm (01/11/2007 đến 25/06/2017).
+* **Geospatial Coverage:** 49 địa điểm khác nhau trải rộng khắp các vùng khí hậu chính ở Úc.
+* **Last Update:** 5 năm trước.
+* **Description:** Dữ liệu quan sát khí tượng hằng ngày được ghi nhận tại mạng lưới trạm đo thời tiết trên khắp nước Úc trong giai đoạn 2007 – 2017.
+
 
 ## 3. Research Questions List
 Dự án giải quyết 5 bài toán phân tích cốt lõi:
@@ -31,7 +35,7 @@ Dự án giải quyết 5 bài toán phân tích cốt lõi:
 Dự án được tổ chức theo cấu trúc Modular giúp dễ dàng bảo trì và tái sử dụng code:
 
 - `data/raw/`: Chứa bộ dữ liệu gốc từ Kaggle (`weatherAUS.csv`).
-- `data/processed/`: Chứa các tệp dữ liệu đã qua xử lý (`data.csv`) và các tập đã split/PCA (`train.csv`, `test.csv`).
+- `data/processed/`: Chứa các tệp dữ liệu đã qua xử lý (`data.csv`) và các tập đã split (`train.csv`, `test.csv`).
 - `notebooks/`: Các bước phân tích chi tiết:
     - `01_data_collection.ipynb`: Nạp và tổng quan dữ liệu ban đầu.
     - `02_data_exploration.ipynb`: Khám phá phân phối, xu hướng và dữ liệu thiếu (EDA).
@@ -41,7 +45,7 @@ Dự án được tổ chức theo cấu trúc Modular giúp dễ dàng bảo tr
     - `data_processing.py`: Các hàm Load, Clean, Label Encode, PCA, và Split dữ liệu.
     - `visualization.py`: Các hàm vẽ biểu đồ chuyên sâu (Missingness matrix, Correlation heatmap, Conditional probability).
     - `__init__.py`: Quản lý việc export các hàm trong package.
-- `assets/images/`: Lưu trữ các biểu đồ và hình ảnh xuất ra từ Notebooks (KDE plots, Heatmaps, Boxplots).
+- `assets/images/`: Lưu trữ các hình ảnh để minh họa trong notebook và biểu đồ xuất ra từ Notebooks (KDE plots, Heatmaps, Boxplots).
 - `requirements.txt`: Danh sách các thư viện phụ thuộc (pandas, seaborn, scikit-learn, missingno, statsmodels).
 - `README.md`: Tệp hướng dẫn này.
 
