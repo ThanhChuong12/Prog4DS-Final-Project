@@ -1,12 +1,12 @@
 # Prog4DS-Final-Project
 Final Project for CSC17104 (PROGRAMING FOR DATA SCIENCE)
 ## 1. Project Overview & Team Info
-Dự án thực hiện phân tích chuyên sâu trên bộ dữ liệu thời tiết của Úc nhằm giải mã các quy luật khí tượng phức tạp. Thay vì chỉ dừng lại ở các thống kê mô tả, dự án tập trung vào việc tìm kiếm các "ngòi nổ" vật lý (như sự sụt giảm áp suất, biên độ nhiệt hẹp) và so sánh hiệu quả của các kỹ thuật xử lý dữ liệu tiên tiến để tối ưu hóa khả năng dự báo mưa.
+Dự án này tập trung giải quyết bài toán dự báo mưa tại Úc – một lục địa có khí hậu đa dạng và phức tạp. Thay vì chỉ sử dụng các mô hình học máy thuần túy, chúng tôi tiếp cận vấn đề thông qua việc hiểu rõ bản chất vật lý của các biến số khí tượng và tối ưu hóa quy trình xử lý dữ liệu để đạt hiệu suất dự báo cao nhất.
 
 **Team Members:**
-- [Lê Hà Thanh Chương] - MSSV: 23120195
-- [Võ Trần Duy Hoàng] - MSSV: 23120266
-- [Trần Đình Thi] - MSSV: 23120359
+- [Lê Hà Thanh Chương] - MSSV: 23120195 
+- [Võ Trần Duy Hoàng] - MSSV: 23120266 
+- [Trần Đình Thi] - MSSV: 23120359 
 
 
 ## 2. Dataset Source & Description
@@ -19,18 +19,38 @@ Dự án thực hiện phân tích chuyên sâu trên bộ dữ liệu thời ti
 
 
 ## 3. Research Questions List
-Dự án giải quyết 5 bài toán phân tích cốt lõi:
-1. **Áp suất & Địa lý:** Phân tích hiện tượng "áp thấp giả" ở nội địa và sự khác biệt về cơ chế gây mưa giữa vùng ven biển và nội địa.
-2. **Dấu hiệu sớm:** Xác định các biến số có tương quan mạnh nhất (Humidity, Sunshine) để làm tín hiệu dự báo.
-3. **Tương tác Phi tuyến:** Nghiên cứu sự kết hợp giữa Biên độ nhiệt ($DTR$) và Nắng ($Sunshine$) để tìm trạng thái bất ổn định nhiệt động lực học.
-4. **Mô hình hóa:** Xây dựng công thức và đánh giá khả năng dự báo dựa trên các biến số đã tinh lọc.
-5. **Kỹ thuật Imputation:** So sánh hiệu quả giữa *Simple Imputer* và *Iterative Imputer (MICE)* trong việc giữ gìn logic vật lý của dữ liệu.
+Dự án giải quyết 6 bài toán phân tích chính:
+
+1. **Q1 (Seasonal Patterns):** Sự biến thiên của Nhiệt độ và Độ ẩm theo mùa ảnh hưởng thế nào đến xác suất mưa?
+
+2. **Q2 (Early Indicators):** Đâu là những dấu hiệu sớm (threshold) của Độ ẩm và Áp suất báo hiệu mưa?
+
+3. **Q3 (Interaction Analysis):** Sự kết hợp giữa Biên độ nhiệt (DTR) và Lượng nắng tạo ra các vùng xác suất mưa phi tuyến như thế nào?
+
+4. **Q4 (Wind Dynamics):** Tốc độ gió giật và sự thay đổi hướng gió đóng vai trò gì trong các cơn dông đối lưu?
+
+5. **Q5 (Imputation Strategy):** Kỹ thuật MICE cải thiện tính nhất quán vật lý của dữ liệu khuyết thiếu ra sao so với điền trung bình?
+
+6. **Q6 (Modeling):** So sánh hiệu suất của Logistic Regression, Random Forest và XGBoost trong việc dự báo mưa.
 
 ## 4. Key Findings Summary
-*(wait)*
-- **Insight 1:** ...
-- **Insight 2:** ...
 
+- **Tín hiệu vật lý:**
+    - Ngưỡng độ ẩm: Mưa thường xảy ra khi Độ ẩm 3pm vượt ngưỡng 60%.
+
+    - Hiệu ứng "Chăn mây": Khi DTR hẹp (<7°C) kết hợp với Lượng nắng thấp, xác suất mưa bùng nổ do mây dày giữ nhiệt ban đêm.
+
+    - Áp thấp giả: Tại vùng nội địa Úc, áp suất giảm mạnh chưa chắc có mưa nếu thiếu độ ẩm hội tụ.
+
+- **Tiền xử lý dữ liệu:** 
+    - Chiến lược MICE: Việc sử dụng MICE (max_iter=20) giúp tăng hệ số tương quan vật lý từ 0.59 lên 0.67, khử nhiễu tốt hơn điền trung bình.
+
+    - PCA Failure: Việc giảm chiều bằng PCA bị loại bỏ do làm sụt giảm nghiêm trọng chỉ số Recall, chứng tỏ các biến số gốc mang thông tin phân loại cực kỳ quan trọng.
+
+- **Kết quả Mô hình:** 
+    - XGBoost đạt hiệu suất tốt nhất với AUC-ROC: 0.892.
+
+    - Thách thức lớn nhất là chỉ số Recall thấp (~0.5) ở ngưỡng mặc định, đòi hỏi phải điều chỉnh Decision Threshold để không bỏ lỡ các cảnh báo thiên tai.
 ## 5. File Structure Explanation
 Dự án được tổ chức theo cấu trúc Modular giúp dễ dàng bảo trì và tái sử dụng code:
 
@@ -40,12 +60,13 @@ Dự án được tổ chức theo cấu trúc Modular giúp dễ dàng bảo tr
     - `01_data_collection.ipynb`: Nạp và tổng quan dữ liệu ban đầu.
     - `02_data_exploration.ipynb`: Khám phá phân phối, xu hướng và dữ liệu thiếu (EDA).
     - `03_preprocessing.ipynb`: Pipeline làm sạch, mã hóa, MICE imputation và PCA.
-    - `Question1.ipynb` -> `Question5.ipynb`: Các bài toán nghiên cứu chuyên sâu theo từng chủ đề.
+    - `04_project_summary.ipynb`: Tổng kết toàn bộ dự án và bài học kinh nghiệm (Reflections).
+    - `Question1.ipynb` -> `Question6.ipynb`: Các bài toán nghiên cứu chuyên sâu theo từng chủ đề.
 - `src/`: Các module tái sử dụng:
     - `data_processing.py`: Các hàm Load, Clean, Label Encode, PCA, và Split dữ liệu.
     - `visualization.py`: Các hàm vẽ biểu đồ chuyên sâu (Missingness matrix, Correlation heatmap, Conditional probability).
     - `__init__.py`: Quản lý việc export các hàm trong package.
-- `assets/images/`: Lưu trữ các hình ảnh để minh họa trong notebook và biểu đồ xuất ra từ Notebooks (KDE plots, Heatmaps, Boxplots).
+- `assets/images/`: Lưu trữ các biểu đồ và hình ảnh xuất ra từ Notebooks (KDE plots, Heatmaps, Boxplots).
 - `requirements.txt`: Danh sách các thư viện phụ thuộc (pandas, seaborn, scikit-learn, missingno, statsmodels).
 - `README.md`: Tệp hướng dẫn này.
 
@@ -59,9 +80,9 @@ Dự án được tổ chức theo cấu trúc Modular giúp dễ dàng bảo tr
 4. Chạy phân tích: Mở tệp Notebook trong VS Code hoặc Jupyter Lab và thực thi các cell từ trên xuống dưới.
 
 ## 7. Dependencies List
-Dự án được xây dựng trên các thư viện mã nguồn mở:
-- pandas: Thao tác dữ liệu bảng.
-- numpy: Tính toán ma trận và đại số tuyến tính.
-- seaborn: Trực quan hóa dữ liệu thống kê cao cấp.
-- matplotlib: Vẽ biểu đồ cơ bản.
-- warnings: Quản lý các thông báo lỗi phiên bản hệ thống.
+Dự án được xây dựng trên ngôn ngữ Python và các thư viện sau:
+- pandas & numpy: Xử lý cấu trúc dữ liệu.
+- matplotlib & seaborn: Trực quan hóa dữ liệu nâng cao.
+- scikit-learn: Tiền xử lý (MICE imputer, Scaler) và mô hình hóa (Logistic, Random Forest).
+- xgboost: Thuật toán Gradient Boosting hiệu suất cao.
+- scipy & statsmodels: Phân tích thống kê và hồi quy.
