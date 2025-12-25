@@ -1,7 +1,12 @@
-# Prog4DS-Final-Project
-Final Project for CSC17104 (PROGRAMING FOR DATA SCIENCE)
+# Final Project for Programing For Data Science (CSC17104)
+---
 ## 1. Project Overview & Team Info
-Dự án này tập trung giải quyết bài toán dự báo mưa tại Úc – một lục địa có khí hậu đa dạng và phức tạp. Thay vì chỉ sử dụng các mô hình học máy thuần túy, chúng tôi tiếp cận vấn đề thông qua việc hiểu rõ bản chất vật lý của các biến số khí tượng và tối ưu hóa quy trình xử lý dữ liệu để đạt hiệu suất dự báo cao nhất.
+
+Đồ án này tập trung giải quyết bài toán dự báo mưa tại Úc – một lục địa có mức độ đa dạng khí hậu rất cao, nơi các quy luật khí tượng mang tính tổng quát thường không đủ khả năng mô tả chính xác các biến động địa phương. Trước bối cảnh đó, đồ án được triển khai theo một quy trình khoa học dữ liệu có cấu trúc rõ ràng, gồm năm giai đoạn liên tiếp: thu thập dữ liệu, khám phá dữ liệu, xác định vấn đề, phân tích và diễn giải kết quả.
+
+Thay vì chỉ dừng lại ở các thống kê mô tả hoặc tối ưu hóa mô hình thuần túy, đồ án áp dụng chiến lược phân tích đa tầng, trong đó trọng tâm là kiểm định các giả thuyết dựa trên cơ chế vật lý. Cách tiếp cận này cho phép kết hợp chặt chẽ kiến thức miền về khí tượng – thủy văn với các kỹ thuật phân tích dữ liệu hiện đại, nhằm đảm bảo rằng các kết luận rút ra không chỉ có ý nghĩa thống kê mà còn phù hợp với bản chất vật lý của các quá trình khí quyển.
+
+Lộ trình phân tích của dự án được định hướng bởi sáu câu hỏi nghiên cứu (RQ1 – RQ6), được tổ chức thành hai trụ cột chính. Trụ cột thứ nhất tập trung vào việc làm rõ các cơ chế vật lý chi phối quá trình hình thành mưa, bao gồm vai trò của động lực học áp suất (RQ1), ảnh hưởng của tính mùa vụ (RQ2), tương tác giữa trạng thái nhiệt và độ ẩm (RQ3), cũng như các tín hiệu động lực học gió (RQ4). Trụ cột thứ hai hướng đến tối ưu hóa khía cạnh kỹ thuật dữ liệu, cụ thể là chiến lược xử lý dữ liệu thiếu (RQ5) và thiết kế, đánh giá các mô hình học máy trong bối cảnh dữ liệu mất cân bằng nghiêm trọng (RQ6).
 
 **Team Members:**
 - [Lê Hà Thanh Chương] - MSSV: 23120195 
@@ -21,17 +26,17 @@ Dự án này tập trung giải quyết bài toán dự báo mưa tại Úc –
 ## 3. Research Questions List
 Dự án giải quyết 6 bài toán phân tích chính:
 
-1. **Q1 (Seasonal Patterns):** Sự biến thiên của Nhiệt độ và Độ ẩm theo mùa ảnh hưởng thế nào đến xác suất mưa?
+1. **RQ1 (Pressure Dynamics):** Liệu mối quan hệ giữa sụt giảm áp suất khí quyển trong ngày (Pressure9am − Pressure3pm) và xác suất mưa ngày kế tiếp (`RainTomorrow`) có ổn định trên toàn bộ lãnh thổ Úc, hay hiệu lực dự báo của áp suất phụ thuộc phi tuyến vào trạng thái độ ẩm khí quyển và bối cảnh địa lý (Ven biển so với Nội địa)?
 
-2. **Q2 (Early Indicators):** Đâu là những dấu hiệu sớm (threshold) của Độ ẩm và Áp suất báo hiệu mưa?
+2. **RQ2 (Seasonality & Indicators):** Sự biến đổi của các đặc trưng khí tượng theo chu kỳ mùa vụ có mối tương quan thế nào với khả năng xảy ra hiện tượng mưa ngày tiếp theo, và đâu là những 'dấu hiệu' nhận biết sớm (early indicators) quan trọng nhất?
 
-3. **Q3 (Interaction Analysis):** Sự kết hợp giữa Biên độ nhiệt (DTR) và Lượng nắng tạo ra các vùng xác suất mưa phi tuyến như thế nào?
+3. **RQ3 (Thermodynamic Interaction):** Phân tích sự tương tác phi tuyến giữa Biên độ nhiệt ngày (Diurnal Temperature Range - $DTR$) và Thời lượng nắng (Sunshine): Liệu sự kết hợp của hai yếu tố này có tạo ra một trạng thái 'Bất ổn định nhiệt ẩm' giúp dự báo mưa chính xác hơn các chỉ số đơn lẻ, và sự tương tác này thay đổi thế nào qua các nhóm trạm quan trắc khác nhau?
 
-4. **Q4 (Wind Dynamics):** Tốc độ gió giật và sự thay đổi hướng gió đóng vai trò gì trong các cơn dông đối lưu?
+4. **RQ4 (Wind Dynamics):** Liệu chỉ số tương tác động lực gió, được xây dựng từ sự kết hợp giữa tốc độ gió giật (`WindGustSpeed`) và độ lệch hướng gió trong ngày (`Diurnal Wind Shift`), có thể đóng vai trò như một chỉ báo dự báo mưa ngày kế tiếp (`RainTomorrow`); hay hiệu lực dự báo của tín hiệu động lực này bị điều biến bởi trạng thái nhiệt – ẩm của khí quyển (đặc trưng bởi độ ẩm và nhiệt độ buổi chiều), cũng như bối cảnh động lực học khu vực (hệ thống gió ven biển so với đối lưu nội địa)?
 
-5. **Q5 (Imputation Strategy):** Kỹ thuật MICE cải thiện tính nhất quán vật lý của dữ liệu khuyết thiếu ra sao so với điền trung bình?
+5. **RQ5 (Data Preprocessing):** Phương pháp xử lý missing values nào (Simple Univariate Imputation vs. Multivariate Iterative Imputation) là tối ưu nhất để bảo toàn cấu trúc phân phối thống kê của các đặc trưng có tỷ lệ missing values cao trong dữ liệu (`Sunshine`, `Evaporation`, `Cloud9am`, `Cloud3pm`)?
 
-6. **Q6 (Modeling):** So sánh hiệu suất của Logistic Regression, Random Forest và XGBoost trong việc dự báo mưa.
+6. **RQ6 (Predictive Modeling):** Trong bối cảnh dữ liệu mất cân bằng (tỷ lệ ngày mưa thấp hơn nhiều so với ngày không mưa), mô hình học máy nào thuộc ba nhóm kiến trúc chính: **Linear** (Logistic Regression), **Bagging** (Random Forest) hay **Boosting** (XGBoost) mang lại hiệu quả cao nhất trong việc tối đa hóa **Recall** (Độ nhạy) để giảm thiểu rủi ro bỏ sót dự báo mưa, trong khi vẫn duy trì chỉ số **F1-Score** ở mức chấp nhận được?
 
 ## 4. Key Findings Summary
 
