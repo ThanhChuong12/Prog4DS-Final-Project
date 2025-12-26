@@ -66,11 +66,11 @@ Dự án được tổ chức theo cấu trúc Modular giúp dễ dàng bảo tr
 - `notebooks/`: Các bước phân tích chi tiết:
     - `01_data_collection.ipynb`: Nạp và tổng quan dữ liệu ban đầu.
     - `02_data_exploration.ipynb`: Khám phá phân phối, xu hướng và dữ liệu thiếu (EDA).
-    - `03_preprocessing.ipynb`: Pipeline làm sạch, mã hóa, MICE imputation và PCA.
+    - `03_preprocessing.ipynb`: Pipeline làm sạch, mã hóa, chuẩn hóa, Feature Engineering, MICE imputation và chia dữ liệu thành 2 tập train và test.
     - `04_project_summary.ipynb`: Tổng kết toàn bộ dự án và bài học kinh nghiệm (Reflections).
     - `Question1.ipynb` -> `Question6.ipynb`: Các bài toán nghiên cứu chuyên sâu theo từng chủ đề.
 - `src/`: Các module tái sử dụng:
-    - `data_processing.py`: Các hàm Load, Clean, Label Encode, PCA, và Split dữ liệu.
+    - `data_processing.py`: Các hàm Load, Clean, Feature Engineering, Normalize, Label Encode, Target Encode, Feature Selection và Split dữ liệu.
     - `visualization.py`: Các hàm vẽ biểu đồ chuyên sâu (Missingness matrix, Correlation heatmap, Conditional probability).
     - `__init__.py`: Quản lý việc export các hàm trong package.
 - `assets/images/`: Lưu trữ các biểu đồ và hình ảnh xuất ra từ Notebooks (KDE plots, Heatmaps, Boxplots).
