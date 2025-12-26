@@ -53,7 +53,7 @@ Dự án giải quyết 6 bài toán phân tích chính:
     - PCA Failure: Việc giảm chiều bằng PCA bị loại bỏ do làm sụt giảm nghiêm trọng chỉ số Recall, chứng tỏ các biến số gốc mang thông tin phân loại cực kỳ quan trọng.
 
 - **Kết quả Mô hình:**
-    - Đánh giá tập trung chủ yếu vào Recall và F1-Score, đây là 2 chỉ số ưu tiên hàng đầu để đánh giá hiệu quả của mô hình vì nó hướng đến giá trị thực tế là ưu tiên cho việc thà chấp nhận dự đoán sai có mưa nhưng thực tế lại nắng còn hơn là bỏ sót đi những ngày có mưa thực sự.
+    - Đánh giá hiệu quả của mô hình tập trung chủ yếu vào Recall và F1-Score vì nó hướng đến giá trị thực tế là ưu tiên cho việc thà chấp nhận dự đoán sai có mưa nhưng thực tế lại nắng còn hơn là bỏ sót đi những ngày có mưa thực sự.
       
     - XGBoost vừa có chỉ số Recall tốt nhất (0.78) vừa đạt hiệu suất tốt nhất với AUC-ROC là 0.892.
 
