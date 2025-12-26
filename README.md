@@ -143,7 +143,7 @@ Dự án được tổ chức theo kiến trúc *Modular*, tách biệt rõ ràn
 
 Mở terminal và chạy lệnh sau để tải mã nguồn về máy:
 ```bash
-git clone [https://github.com/ThanhChuong12/Prog4DS-Final-Project.git](https://github.com/ThanhChuong12/Prog4DS-Final-Project.git)
+git clone https://github.com/ThanhChuong12/Prog4DS-Final-Project.git
 cd Prog4DS-Final-Project
 ```
 **Bước 2: Thiết lập môi trường ảo (Virtual Environment)** 
