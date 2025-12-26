@@ -38,8 +38,6 @@ Thay vì chỉ dừng lại ở các thống kê mô tả hoặc tối ưu hóa 
 
 Lộ trình phân tích của dự án được định hướng bởi sáu câu hỏi nghiên cứu (RQ1 – RQ6), được tổ chức thành hai trụ cột chính. 
 
-Trụ cột thứ nhất tập trung vào việc làm rõ các cơ chế vật lý chi phối quá trình hình thành mưa, bao gồm vai trò của động lực học áp suất (RQ1), ảnh hưởng của tính mùa vụ (RQ2), tương tác giữa trạng thái nhiệt và độ ẩm (RQ3), cũng như các tín hiệu động lực học gió (RQ4). Trụ cột thứ hai hướng đến tối ưu hóa khía cạnh kỹ thuật dữ liệu, cụ thể là chiến lược xử lý dữ liệu thiếu (RQ5) và thiết kế, đánh giá các mô hình học máy trong bối cảnh dữ liệu mất cân bằng nghiêm trọng (RQ6).
-
 | **Trụ cột 1: Giải mã cơ chế vật lý** | **Trụ cột 2: Tối ưu hóa kỹ thuật dữ liệu** |
 | :--- | :--- |
 | Tập trung làm rõ các quy luật tự nhiên chi phối quá trình gây mưa. | Tập trung vào tính bền vững và hiệu năng của quy trình xử lý. |
@@ -136,7 +134,7 @@ Dự án được tổ chức theo kiến trúc *Modular*, tách biệt rõ ràn
 * **Python**: Phiên bản 3.8 trở lên.
 * **Package Manager**: `pip` hoặc `conda`.
 * **Git**: Để clone repository.
-* 
+
 ### Installation
 
 **Bước 1: Clone Repository**
